@@ -1,0 +1,122 @@
+include<stdio.h>
+#include<string.h>
+#include <stdlib.h>
+
+#define NAME_MAX_LEN 30
+#define CMD_MAX_LEN 80
+
+typedef struct link_list {
+    char name[NAME_MAX_LEN];
+    int age;
+    struct link_list *next;
+} NODE;
+
+NODE *info=NULL;
+
+void add (char name[], int age)
+{
+    NODE *temp=NULL, *p=NULL, *prev=NULL, *q=NULL;
+
+     temp = (NODE *) malloc(sizeof(NODE));
+     if (temp == NULL) {
+         printf("\n Malloc failed");
+         return;
+     }
+
+     strncpy(temp->name, name, NAME_MAX_LEN);
+     temp->age = age;
+     temp->next = NULL;
+
+     if (info == NULL) {
+         info = temp;
+     } else {
+         p = info;
+         prev = info;
+         while (p != NULL && p->age <= age) {
+             prev = p;
+             p = p->next;
+         }
+         if (p == info) {
+             temp->next = info;
+             info = temp;
+         }
+         else {
+             q = prev->next;
+             prev->next = temp;
+             temp->next = q;
+         }
+    }
+}
+
+void remove (int item_num)
+{
+    NODE *temp, *prev, *p;
+    int count = 1;
+
+    temp = info;
+    prev = info;
+
+    while (temp != NULL && count != item_num)
+    {
+         count++;
+         prev = temp;
+         temp = temp->next;
+    }
+
+    if (temp == info) {
+        p = info;
+        info = info->next;
+        free(p);
+        p = NULL;
+    } else {
+        p = prev->next;
+        prev->next = p->next;
+        free(p);
+        p = NULL;
+    }
+}
+
+void print (int item_num)
+{
+    NODE *temp;
+    int count = 0;
+
+    temp = info;
+    while (temp != NULL)
+    {
+        count++;
+        if (count == item_num) {
+            printf("%s %d\n", temp->name, temp->age);
+        }
+        temp = temp->next;
+    }
+}
+
+int main()
+{
+    char command[CMD_MAX_LEN], *token1, *token2, *token3;
+    int age, item_num;
+
+    while (1) {
+
+         fgets(command, CMD_MAX_LEN, stdin);
+
+         token1 = strtok(command, " \n");
+         if (!strcmp(token1, "insert")) {
+             token2 = strtok(NULL, " ");
+             token3 = strtok(NULL, " ");
+             age = atoi(token3);
+             add(token2, age);
+         } else if (!(strcmp(token1, "remove"))) {
+             token2 = strtok(NULL, " ");
+             item_num = atoi(token2);
+             remove(item_num);
+         } else if (!(strcmp(token1, "print"))) {
+             token2 = strtok(NULL, " ");
+             item_num = atoi(token2);
+             print(item_num);
+         } else if (!(strcmp(token1, "stop"))) {
+             break;
+         }
+     }
+}
